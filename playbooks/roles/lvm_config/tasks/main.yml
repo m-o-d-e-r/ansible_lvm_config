@@ -1,0 +1,44 @@
+---
+# tasks file for lvm_config
+
+- name: "Check if disk exists: {{ lvm_config_target_disk }}"
+  ansible.builtin.stat:
+    path: "{{ lvm_config_target_disk }}"
+  register: disk_status
+
+- name: "Create volume group: {{ lvm_config_vg_name }}"
+  community.general.lvg:
+    vg: "{{ lvm_config_vg_name }}"
+    pvs:
+      - "{{ lvm_config_target_disk }}"
+  become: true
+  become_user: root
+  when: disk_status.stat.exists
+
+- name: "Create logical volume"
+  community.general.lvol:
+    vg: "{{ lvm_config_vg_name }}"
+    lv: "{{ lvm_config_lv_name }}"
+    size: "{{ lvm_config_lv_size }}"
+    force: true
+  become: true
+  become_user: root
+  when: disk_status.stat.exists
+
+- name: "Create fs for lv"
+  community.general.filesystem:
+    fstype: "{{ lvm_config_fs_type }}"
+    dev: "/dev/{{ lvm_config_vg_name }}/{{ lvm_config_lv_name }}"
+  become: true
+  become_user: root
+  when: disk_status.stat.exists
+
+- name: "Mount lv to {{ lvm_config_mount_dir }}"
+  ansible.posix.mount:
+    path: "{{ lvm_config_mount_dir }}"
+    src: "/dev/{{ lvm_config_vg_name }}/{{ lvm_config_lv_name }}"
+    fstype: "{{ lvm_config_fs_type }}"
+    state: mounted
+  become: true
+  become_user: root
+  when: disk_status.stat.exists

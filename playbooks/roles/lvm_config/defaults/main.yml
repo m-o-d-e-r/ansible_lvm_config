@@ -1,0 +1,10 @@
+---
+# defaults file for lvm_config
+
+lvm_config_user: admin
+lvm_config_target_disk: /dev/vdb
+lvm_config_fs_type: ext4
+lvm_config_vg_name: super-vg
+lvm_config_lv_name: super-lv
+lvm_config_lv_size: 2g
+lvm_config_mount_dir: /mnt

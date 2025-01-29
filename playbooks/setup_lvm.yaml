@@ -1,0 +1,11 @@
+---
+
+- name: Configure LVM
+  hosts: dbs
+  vars_files:
+    - default.yaml
+  become_user: "{{ lvm_config_user }}"
+  become: true
+
+  roles:
+    - lvm_config
